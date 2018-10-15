@@ -18,7 +18,8 @@ x = linspace(x_0, x_n, n).';
 
 %% Matrix of the operator d^2/dx^2
 % Define the operator
-D2 = gallery('tridiag',n,1,-2,1);
+e=ones(n,1);
+D2 = spdiags([e -2*e e], -1:1, n, n);
 
 % Add BCs
 % x = 0
