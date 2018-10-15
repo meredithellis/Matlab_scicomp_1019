@@ -1,30 +1,46 @@
 %% Finite difference method
-x_0 = 0;  %startpoint
-x_n = 1; % end points
-k= 100; % number of spaces
-n=k+1;  % number of points
-h=(x_n-x_0)/k; % width of points
 
-u_0 = 0; % dirichlet BC
-u_n=0.1; % dirichlet BC
+%% Initialization
+% Definition of the interval
+x_0 = 0;
+x_n = 1;
 
-x=(x_0:h:x_n)'; % vector x 
+% number of points
+n = 100;
+h = (x_n-x_0)/(n-1);
 
-e=ones(n,1);
-D2 = spdiags([e -2*e e], -1:1, n, n);
-D2=(1/h^2)*D2;
-%input BCs
-D2(1,:)=0; 
-D2(1,1)=1;
-D2(end, end-1)=0;
-D2(end,end) = 1;
+% Dirichlet BC
+u_0 = 0;
+u_n = 0.1;
 
+% Vector of points
+x = linspace(x_0, x_n, n).';
 
-f= @(x) 10*sin(20*x) - cos(x.^5);
+%% Matrix of the operator d^2/dx^2
+% Define the operator
+D2 = gallery('tridiag',n,1,-2,1);
 
-g= @(x) [u_0; f(x(2:end-1)); u_n];
+% Add BCs
+% x = 0
+D2(1,1) = 1; D2(1,2) = 0;
+% x = 1
+D2(n,n-1) = 0; D2(n,n) = 1;
 
-u=D2\g(x);
+%% Right hand side
+f = @(x) 10*sin(20*x)+cos(x.^5);
+
+% Multiply the rhs by h^2 to avoid numerical errors
+F = h^2*f(x);
+
+% Add BC
+F(1) = u_0;
+F(n) = u_n;
+
+%% Compute the solution and plot it
+% Solve the equation
+u=D2\F;
+
+% Plot the solution
 plot(x,u)
 xlabel('x') 
 ylabel('u(x)')
